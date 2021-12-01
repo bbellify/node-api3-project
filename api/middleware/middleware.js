@@ -13,7 +13,6 @@ async function validateUserId(req, res, next) {
       res.status(404).json({
         message: "user not found"
       })
-      next()
     } else {
       req.user = user
       next()
@@ -22,7 +21,6 @@ async function validateUserId(req, res, next) {
     res.status(400).json({
       message: 'something went wrong'
     })
-    next()
   }
 }
 
@@ -32,14 +30,20 @@ function validateUser(req, res, next) {
     res.status(400).json({
       message: 'missing required name field'
     })
-    next()
   } else {
     next()
   }
 }
 
 function validatePost(req, res, next) {
-  // DO YOUR MAGIC
+  const { text } = req.body
+  if (!text) {
+    res.status(400).json({
+      message: 'missing required text field'
+    })
+  } else {
+    next()
+  }
 }
 
 // do not forget to expose these functions to other modules

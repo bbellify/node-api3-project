@@ -3,6 +3,7 @@ const Users = require('./users-model')
 const { 
   validateUserId, 
   validateUser,
+  validatePost
  } = require('../middleware/middleware')
 
 // You will need `users-model.js` and `posts-model.js` both
@@ -10,7 +11,6 @@ const {
 
 const router = express.Router();
 
-// RETURN AN ARRAY WITH ALL THE USERS
 router.get('/', async (req, res) => {
   try {
     const users = await Users.get()
@@ -21,30 +21,52 @@ router.get('/', async (req, res) => {
     } else {
       res.json(users)
     }
-  } catch {
+  } catch (error) {
     res.status(400).json({
       message: 'error fetching users'
     })
   }
 });
 
-// RETURN THE USER OBJECT
-// this needs a middleware to verify user id
 router.get('/:id', validateUserId, (req, res) => {
   res.json(req.user)
 });
 
-// RETURN THE NEWLY CREATED USER OBJECT
-// this needs a middleware to check that the request body is valid
-router.post('/', (req, res) => {
-
+router.post('/', validateUser, async (req, res) => {
+  try {
+    const user = await Users.insert(req.body)
+    if (!user) {
+      res.status(400).json({
+        message: 'something went wrong'
+      })
+    } else {
+      res.status(201).json(user)
+    }
+  } catch {
+    res.status(400).json({
+      message: 'something went wrong'
+    })
+  }
 });
 
 // RETURN THE FRESHLY UPDATED USER OBJECT
 // this needs a middleware to verify user id
 // and another middleware to check that the request body is valid
-router.put('/:id', validateUser, validateUserId, (req, res) => {
-
+router.put('/:id', validateUser, validateUserId, async (req, res) => {
+  try {
+    const changes = await Users.update(req.user.id, req.body)
+    if (!changes) {
+      res.status(400).json({
+        message: 'something went wrong'
+      })
+    } else {
+      res.json(changes)
+    }
+  } catch {
+    res.status(400).json({
+      message: 'something went wrong here'
+    })
+  }
 });
 
 // RETURN THE FRESHLY DELETED USER OBJECT
