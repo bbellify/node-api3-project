@@ -1,5 +1,6 @@
 const express = require('express');
 const Users = require('./users-model')
+const Posts = require('../posts/posts-model')
 const { 
   validateUserId, 
   validateUser,
@@ -66,8 +67,6 @@ router.put('/:id', validateUser, validateUserId, async (req, res) => {
   }
 });
 
-// RETURN THE FRESHLY DELETED USER OBJECT
-// this needs a middleware to verify user id
 router.delete('/:id', validateUserId, async (req, res) => {
   try {
     const deleted = await Users.remove(req.params.id)
@@ -88,8 +87,21 @@ router.delete('/:id', validateUserId, async (req, res) => {
 
 // RETURN THE ARRAY OF USER POSTS
 // this needs a middleware to verify user id
-router.get('/:id/posts', (req, res) => {
-
+router.get('/:id/posts', validateUserId, async (req, res) => {
+  try {
+    const posts = await Users.getUserPosts(req.params.id)
+    if (!posts) {
+      res.status(400).json({
+        message: 'error fetching posts'
+      })
+    } else {
+      res.json(posts)
+    }
+  } catch {
+    res.status(400).json({
+      message: 'something went wrong'
+    })
+  }
 });
 
 // RETURN THE NEWLY CREATED USER POST
