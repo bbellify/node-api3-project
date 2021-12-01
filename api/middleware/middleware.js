@@ -7,7 +7,6 @@ function logger(req, res, next) {
 }
 
 async function validateUserId(req, res, next) {
-  // DO YOUR MAGIC
   try {
     const user = await Users.getById(req.params.id)
     if (!user) {
@@ -28,7 +27,15 @@ async function validateUserId(req, res, next) {
 }
 
 function validateUser(req, res, next) {
-  // DO YOUR MAGIC
+  const { name } = req.body
+  if (!name) {
+    res.status(400).json({
+      message: 'missing required name field'
+    })
+    next()
+  } else {
+    next()
+  }
 }
 
 function validatePost(req, res, next) {
