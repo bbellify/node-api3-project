@@ -49,9 +49,6 @@ router.post('/', validateUser, async (req, res) => {
   }
 });
 
-// RETURN THE FRESHLY UPDATED USER OBJECT
-// this needs a middleware to verify user id
-// and another middleware to check that the request body is valid
 router.put('/:id', validateUser, validateUserId, async (req, res) => {
   try {
     const changes = await Users.update(req.user.id, req.body)
@@ -71,7 +68,21 @@ router.put('/:id', validateUser, validateUserId, async (req, res) => {
 
 // RETURN THE FRESHLY DELETED USER OBJECT
 // this needs a middleware to verify user id
-router.delete('/:id', (req, res) => {
+router.delete('/:id', validateUserId, async (req, res) => {
+  try {
+    const deleted = await Users.remove(req.params.id)
+    if (!deleted) {
+      res.status(400).json({
+        message: 'failed to delete user'
+      })
+    } else {
+      res.json(req.user)
+    }
+  } catch {
+    res.status(400).json({
+      message: 'something went wrong'
+    })
+  }
 
 });
 
